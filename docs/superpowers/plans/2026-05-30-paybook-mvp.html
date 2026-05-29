@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paybook MVP Implementation Plan</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: #f2f0eb;
+      color: rgba(0,0,0,.87);
+      line-height: 1.6;
+    }
+    header {
+      background: #1e3932;
+      color: white;
+      padding: 42px 24px;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 56px;
+    }
+    h1, h2, h3 { letter-spacing: 0; line-height: 1.25; }
+    h1 { max-width: 980px; margin: 0 auto; }
+    .lead { max-width: 980px; margin: 10px auto 0; color: rgba(255,255,255,.72); }
+    section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+      padding: 22px;
+      margin: 16px 0;
+    }
+    h2 { color: #006241; }
+    code, pre {
+      background: #edebe9;
+      border-radius: 8px;
+    }
+    code { padding: 2px 6px; }
+    pre {
+      overflow-x: auto;
+      padding: 14px;
+    }
+    li { margin: 6px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Paybook MVP Implementation Plan</h1>
+    <p class="lead">Docker 배포 가능한 Next.js 공동가계부 MVP 구현 계획 요약.</p>
+  </header>
+  <main>
+    <section>
+      <h2>목표와 구조</h2>
+      <p>Next.js App Router, PostgreSQL, signed PIN session, React client components, Docker multi-stage build로 Paybook MVP를 만든다. PIN은 <code>PAYBOOK_PIN</code> 환경변수와 비교하고 DB에 저장하지 않는다.</p>
+    </section>
+    <section>
+      <h2>생성할 주요 파일</h2>
+      <ul>
+        <li>앱: <code>src/app/layout.tsx</code>, <code>src/app/page.tsx</code>, <code>src/app/globals.css</code></li>
+        <li>컴포넌트: <code>PinGate</code>, <code>SetupForm</code>, <code>Dashboard</code>, <code>MobileDetailView</code></li>
+        <li>서버 로직: <code>config</code>, <code>auth</code>, <code>db</code>, <code>repository</code>, <code>validation</code>, <code>month</code></li>
+        <li>API: PIN, household, monthly, expenses add/delete</li>
+        <li>배포: <code>Dockerfile</code>, <code>docker-compose.example.yml</code>, <code>.env.example</code>, <code>README.md</code></li>
+      </ul>
+    </section>
+    <section>
+      <h2>작업 순서</h2>
+      <ol>
+        <li>Next.js/TypeScript/Vitest 프로젝트 스캐폴딩</li>
+        <li>월/검증/환경변수 유틸리티와 테스트 작성</li>
+        <li>PostgreSQL 스키마 자동 생성과 repository 구현</li>
+        <li>환경변수 PIN 기반 signed cookie 인증 구현</li>
+        <li>데이터 API 라우트 구현</li>
+        <li>데스크톱 대시보드와 모바일 입력 중심 화면 구현</li>
+        <li>모바일 상세내역 화면과 월 선택 흐름 구현</li>
+        <li>Docker/Proxmox 배포 문서와 예제 작성</li>
+        <li>unit, lint, build, Docker smoke 검증</li>
+      </ol>
+    </section>
+    <section>
+      <h2>검증 기준</h2>
+      <ul>
+        <li>PIN 없이는 데이터 API가 401을 반환한다.</li>
+        <li>두 사람 이름 설정 후 월별 합계와 상세 내역이 보인다.</li>
+        <li>쓴 사람은 선택형으로 저장된다.</li>
+        <li>최근/자주 쓴 용도 5개를 선택하거나 자유 입력할 수 있다.</li>
+        <li>모바일 기본 화면은 입력 중심이고, 오른쪽 위 상세내역 버튼으로 월별 내역을 확인한다.</li>
+        <li>모바일 상세내역 화면에서 다른 달을 선택해 합계와 내역을 볼 수 있다.</li>
+        <li>Docker 이미지는 <code>DATABASE_URL</code>, <code>PAYBOOK_PIN</code>, <code>PAYBOOK_SESSION_SECRET</code>만으로 실행된다.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>원본 계획</h2>
+      <p>세부 체크리스트와 코드 수준 지시는 Markdown 원본인 <code>docs/superpowers/plans/2026-05-30-paybook-mvp.md</code>를 기준으로 한다.</p>
+    </section>
+  </main>
+</body>
+</html>

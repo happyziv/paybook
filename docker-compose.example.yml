@@ -1,0 +1,11 @@
+services:
+  paybook:
+    build: .
+    container_name: paybook
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://paybook:change-me@postgres.example:5432/paybook"
+      PAYBOOK_PIN: "123456"
+      PAYBOOK_SESSION_SECRET: "replace-with-at-least-32-random-characters"
