@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import {
   createSessionToken,
   isPinValid,
-  serializeSessionCookie
+  serializeSessionCookie,
+  shouldUseSecureCookie
 } from "@/lib/auth";
 import { getConfig } from "@/lib/config";
 import { parsePinInput, ValidationError } from "@/lib/validation";
@@ -23,7 +24,10 @@ export async function POST(request: Request) {
     return new NextResponse(null, {
       status: 204,
       headers: {
-        "Set-Cookie": serializeSessionCookie(token, config.isProduction)
+        "Set-Cookie": serializeSessionCookie(
+          token,
+          shouldUseSecureCookie(request, config.isProduction)
+        )
       }
     });
   } catch (error) {

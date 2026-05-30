@@ -73,6 +73,69 @@ export function serializeSessionCookie(
   return attributes.join("; ");
 }
 
+function isPrivateNetworkHost(hostname: string): boolean {
+  const normalized = hostname.toLowerCase();
+
+  if (
+    normalized === "localhost" ||
+    normalized.endsWith(".localhost") ||
+    normalized.endsWith(".local") ||
+    !normalized.includes(".") ||
+    normalized === "::1" ||
+    normalized === "[::1]"
+  ) {
+    return true;
+  }
+
+  const octets = normalized.split(".").map(Number);
+  if (
+    octets.length !== 4 ||
+    octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)
+  ) {
+    return false;
+  }
+
+  const [first, second] = octets;
+  return (
+    first === 10 ||
+    first === 127 ||
+    first === 0 ||
+    (first === 172 && second >= 16 && second <= 31) ||
+    (first === 192 && second === 168) ||
+    (first === 169 && second === 254)
+  );
+}
+
+export function shouldUseSecureCookie(
+  request: Request,
+  isProduction: boolean
+): boolean {
+  if (!isProduction) {
+    return false;
+  }
+
+  const url = new URL(request.url);
+  const forwardedProto = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    ?.trim()
+    .toLowerCase();
+
+  if (forwardedProto === "https") {
+    return true;
+  }
+
+  if (forwardedProto === "http") {
+    return !isPrivateNetworkHost(url.hostname);
+  }
+
+  if (url.protocol === "https:") {
+    return true;
+  }
+
+  return !isPrivateNetworkHost(url.hostname);
+}
+
 export async function hasValidSession(): Promise<boolean> {
   const config = getConfig();
   const cookieStore = await cookies();
